@@ -1,5 +1,6 @@
 <?php
   	require $path_to_class . 'include/stripe/init.php';
+class stripe{
 	public $response = array("message" 	=> "",
 							 "status"	=>	0,
 							 "data"		=> null,
