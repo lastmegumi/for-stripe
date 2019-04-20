@@ -1,21 +1,26 @@
 <?php
-	// use net\authorize\api\contract\v1 as AnetAPI;
-	// use net\authorize\api\controller as AnetController;
- 	// require ROOT_PATH . 'include/card/vendor/autoload.php';
-  	require ROOT_PATH . 'include/stripe/init.php';
-    // define("AUTHORIZENET_LOG_FILE", "phplog");
-class card{
+  	require $path_to_class . 'include/stripe/init.php';
 	public $response = array("message" 	=> "",
 							 "status"	=>	0,
 							 "data"		=> null,
 							);
 	private $_test_key = "sk_test_aaaaaaaaaaaaaaaaaaaaaaaa";	# your test key
 	private $_live_key = "sk_live_bbbbbbbbbbbbbbbbbbbbbbbb";	# your live key
-	private $test_mode = false;
+	private $test_mode = true;
 	public $_min_pay = 1;
 
 	function __construct(){
-		\Stripe\Stripe::setApiKey($this->_test_key);
+		try{
+			if($this->test_mode):
+				\Stripe\Stripe::setApiKey($this->_test_key);
+			else:
+				\Stripe\Stripe::setApiKey($this->_live_key);
+			endif;
+		}catch(Exception $e){
+			$this->response['message'] = $e->getMessage();
+			return $this->response;
+		}
+
 	}
 
 	function currency_mark($currency = null){
@@ -24,7 +29,7 @@ class card{
 				return "$";
 				break;
 			default:
-				return "$";
+				return "$";	#default currency dolor
 				# code...
 				break;
 		}return null;
@@ -34,7 +39,6 @@ class card{
 		// Token is created using Checkout or Elements!
 		// Get the payment token ID submitted by the form:
 		//$token = $_POST['stripeToken'];
-
 		try {
 			$charge = \Stripe\Charge::create([
 			    'amount' => $amount,
@@ -119,7 +123,6 @@ class card{
 				$this->response['message'] = $e->getMessage();
 			}
 		endif;
-		//print_r($this->response);
 		return $this->response;
 	}
 
